@@ -11,7 +11,7 @@ class App extends Component {
     super(...args);
     this.state = {
       draw: [deck],
-      discard: {}
+      discard: {"Hollow Men": 4}
     };
     this.drawCard = this.drawCard.bind(this);
     this.epidemic = this.epidemic.bind(this);

@@ -8,7 +8,7 @@ export default class Discard extends Component {
   }
 
   makeCards() {
-    return Object.entries(this.props.discard).map( x => <Card city={x[0]} count={x[1]} disabled={false} clickAction={() => this.props.clickAction(x[0])} key={x[0]}/>);
+    return Object.entries(this.props.discard).map( x => <Card city={x[0]} count={x[1]} disabled={x[0]==="Hollow Men"} clickAction={() => this.props.clickAction(x[0])} key={x[0]}/>);
   }
 
   render() {
