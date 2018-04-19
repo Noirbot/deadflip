@@ -2,16 +2,18 @@ import React, { Component } from 'react';
 import './App.css';
 import Deck from './Deck'
 import Discard from './Discard'
-import { Button } from 'react-bootstrap';
+import Immune from './Immune'
 
 const deck = require('./data/deck.json');
+const immune = require('./data/immune.json');
 
 class App extends Component {
   constructor(...args) {
     super(...args);
     this.state = {
       draw: [deck],
-      discard: {"Hollow Men": 4}
+      discard: {"Hollow Men": 8},
+      immune: immune
     };
     this.drawCard = this.drawCard.bind(this);
     this.epidemic = this.epidemic.bind(this);
@@ -59,17 +61,31 @@ class App extends Component {
     return [draw, discard]
   }
 
-  epidemic(bottomCity) {
-    let updated = this.drawCard(bottomCity, false)
-    const draw = updated[0]
-    let discard = updated[1]
+  epidemic(city) {
+    const draw = [...this.state.draw]
+    let discard = {...this.state.discard}
+    const immune = {...this.state.immune}
+    const cardCount = immune[city]
+
+    if (cardCount === 1) {
+      delete immune[city]
+    } else {
+      immune[city] = cardCount - 1;
+    }
+
+    if (discard[city]) {
+      discard[city]++
+    } else {
+      discard[city] = 1
+    }
     draw.push({...discard})
     discard = {}
-    this.setState({draw, discard})
+    this.setState({draw, discard, immune})
   }
 
   immunize(city) {
     const discard = {...this.state.discard}
+    const immune = {...this.state.immune}
     const cardCount = discard[city]
 
     console.log(`Immunizing ${city}`)
@@ -84,7 +100,13 @@ class App extends Component {
       discard[city] = cardCount - 1;
     }
 
-    this.setState({discard: discard})
+    if (immune[city]) {
+      immune[city]++
+    } else {
+      immune[city] = 1
+    }
+
+    this.setState({discard: discard, immune: immune})
   }
 
   render() {
@@ -93,9 +115,6 @@ class App extends Component {
       flexDirection:'column',
       padding: '0px'
     };
-    const epiStyle = {
-
-    };
 
     return (
       <div style={bodyStyle}>
@@ -103,12 +122,7 @@ class App extends Component {
         <hr />
         <Discard discard={this.state.discard} clickAction={this.immunize}/>
         <hr />
-        <div style={epiStyle}>
-          <Button onClick={() => this.epidemic(this.epidemicCard.value)} bsStyle="success">Epidemic!</Button>
-          <select id='epidemicCard' ref={(select) => {this.epidemicCard = select; }}>
-            {Object.keys(this.state.draw[0]).map(x => <option value={x} key={x}>{x}</option>)}
-          </select>
-        </div>
+        <Immune immune={this.state.immune} clickAction={this.epidemic} />
       </div>
     );
   }
